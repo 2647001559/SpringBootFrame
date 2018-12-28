@@ -1,0 +1,18 @@
+本地运行：调试、开发阶段启动方式
+
+第一种：在IDEA上直接启动，访问本机地址加端口号，如：localhost:8080（推荐，可以用DEBUG模式启动）
+
+第二种：运行src > main > java > com > wt > wata下的WataApplication类
+
+
+服务器运行：开发完毕 或 进入测试版 ，部署到云服务器后的运行方式（cmd命令模式）
+
+条件：将项目放在云服务器上的D盘或C盘下，方便启动
+
+第一种：mvn spring-boot:run
+    步骤:  1.打开CMD窗口
+           2.找到项目所在位置，如：    D:>MySpringBootFrame>mvn spring-boot:run
+
+第二种：mvn install
+    步骤:  1.打开CMD窗口
+           2.找到文件所在位置，如：    D:>MySpringBootFrame>mvn install
