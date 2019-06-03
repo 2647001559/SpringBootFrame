@@ -1,10 +1,8 @@
 package com.wt.wata.common;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * 常用工具类
@@ -13,63 +11,41 @@ import java.util.UUID;
  * @version 1.0
  *
  * 方法说明：
- *      1.isEmpty()   非空验证     参数支持：String、Object、List、Object[]、Set、Map
- *      2.get32ID()    生成一个32位编码的字符串，用于生成主键
+ *      1.isNullPointer()  空指针验证     判断是否存在空指针
+ *      2.isEmpty()         内容非空验证  支持参数：Object  List  Map  String Set
+ *      3.get32ID()   生成一个32位编码的字符串，用于生成主键
  */
 public class CommonUtil implements Serializable {
 
+    /*================================================= public =========================================================*/
+
     /**
-     * 判断字符串是否为空
-     * @param param 字符串
+     * 空指针验证
+     * @param param 对象
      * @return  true:为空     false:不为空
      */
-    public static boolean isEmpty(String param){
-        return param.length() <= 0||param.equals("") ? true : false;
+    public static boolean isNullPointer(Object param){
+        return isEmpty(() -> param).isPresent();
     }
 
     /**
-     * 判断一个对象是否为空
+     * 内容非空验证
      * @param param 对象
      * @return  true:为空     false:不为空
      */
     public static boolean isEmpty(Object param){
-        return param == null || isEmpty(param.toString())? true : false;
-    }
-
-    /**
-     * 判断List泛型是否为空
-     * @param param 泛型集合
-     * @return  true:为空     false:不为空
-     */
-    public static boolean isEmpty(List param){
-        return param.size() <= 0 || param == null ? true : false;
-    }
-
-    /**
-     * 判断一个数组是否为空
-     * @param param 数组
-     * @return  true:为空     false:不为空
-     */
-    public static boolean isEmpty(Object[] param){
-        return param.length <= 0 || param == null ? true : false;
-    }
-
-    /**
-     * 判断一个set泛型是否为空
-     * @param param set泛型
-     * @return  true:为空     false:不为空
-     */
-    public static boolean isEmpty(Set param){
-        return param.size() <= 0 || param == null ? true : false;
-    }
-
-    /**
-     * 判断一个map集合是否为空
-     * @param param map集合
-     * @return  true:为空     false:不为空
-     */
-    public static boolean isEmpty(Map param){
-        return param.size() <= 0 || param == null ? true : false;
+        switch (switchParam(param)){
+            case "String":
+                return ((String)param).length() == 0 || ((String)param).equals("") ? true : false;
+            case "list":
+                return ((List)param) == null || ((List)param).size() == 0 ? true : false;
+            case "map":
+                return ((Map)param) == null || ((Map)param).size() == 0 ? true : false;
+            case "set":
+                return ((Set)param) == null || ((Set)param).size() == 0 ? true : false;
+            default:
+                return param == null ? true : false;
+        }
     }
 
     /**
@@ -78,5 +54,39 @@ public class CommonUtil implements Serializable {
      */
     public static String get32ID(){
         return UUID.randomUUID().toString().replace("-","");
+    }
+
+
+
+    /*======================================================== private ==================================================*/
+
+    /**
+     * 内部方法，采用Java8特性的Optional和Supplier来验证非空
+     * @param resolve
+     * @param <T>
+     * @return
+     */
+    private static <T> Optional<T> isEmpty(Supplier<T> resolve){
+        try{
+            T result = resolve.get();
+            return Optional.ofNullable(result);
+        }catch (NullPointerException e){
+            return Optional.empty();
+        }
+    }
+
+
+    private static String switchParam(Object param){
+        if (param instanceof String){
+            return "String";
+        } else if (param instanceof List){
+            return "list";
+        } else if (param instanceof Set){
+            return "set";
+        } else if (param instanceof Map){
+            return "map";
+        } else {
+            return "object";
+        }
     }
 }
