@@ -2,6 +2,11 @@ package com.wt.wata.common.wxutil;
 
 import com.alibaba.fastjson.JSONObject;
 import com.wt.wata.common.CacheUtil;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,30 +16,37 @@ import java.util.Map;
  * @author 添柴灬少年
  * @date 2019/5/30 - 10:32
  */
+@Component
+@Scope("singleton")
 public class WeiXinLoginUtil {
-/*================================= 单例模式设置 和 初始化方法 start =================================*/
-    /*单例模式  volatile:防止实例在初始化时的指令重排序*/
-    private static volatile WeiXinLoginUtil  weiXinLoginUtil = null;
-    /*构造器私有化*/
-    private WeiXinLoginUtil(){}
-
-    /**
-     * 获取单例
-     * @return
-     */
-    public static WeiXinLoginUtil getWeiXinLoginUtil(){
-        if (weiXinLoginUtil == null){                           //判断单例是否初始化
-            synchronized (WeiXinLoginUtil.class){               //锁定初始化，防止在多线程下，实例化多个单例
-                if (weiXinLoginUtil == null){                   //判断单例是否初始化，防止单例重复初始化或初始化不同的单例
-                    weiXinLoginUtil = new WeiXinLoginUtil();    //初始化单例
-                }
-            }
-        }
-        return weiXinLoginUtil;                                 //返回单例
-    }
+///*================================= 单例模式设置 和 初始化方法 start =================================*/
+//    /*单例模式  volatile:防止实例在初始化时的指令重排序*/
+//    private static volatile WeiXinLoginUtil  weiXinLoginUtil = null;
+//    /*构造器私有化*/
+//    private WeiXinLoginUtil(){}
+//
+//    /**
+//     * 获取单例
+//     * @return
+//     */
+//    public static WeiXinLoginUtil getWeiXinLoginUtil(){
+//        if (weiXinLoginUtil == null){                           //判断单例是否初始化
+//            synchronized (WeiXinLoginUtil.class){               //锁定初始化，防止在多线程下，实例化多个单例
+//                if (weiXinLoginUtil == null){                   //判断单例是否初始化，防止单例重复初始化或初始化不同的单例
+//                    weiXinLoginUtil = new WeiXinLoginUtil();    //初始化单例
+//                }
+//            }
+//        }
+//        return weiXinLoginUtil;                                 //返回单例
+//    }
 
     /*成员变量   拼接请求地址*/
     private StringBuffer strUrl = null;
+
+    @Value("${wx.appId}")
+    private String appId;   //微信appid
+    @Value("${wx.appSecret}")
+    private String appSecret;   //微信appSecret
 
     /**
      * 初始化成员变量
@@ -69,8 +81,8 @@ public class WeiXinLoginUtil {
             if (code == null || code.equals("")){
                 throw new Exception("微信登陆工具 --- 获取openId标识 --- 参数code为空值");
             }
-            strUrl.append("https://api.weixin.qq.com/sns/oauth2/access_token?appid=").append(WeiXinJavaBean.gzh_AppID)
-                    .append("&secret=").append(WeiXinJavaBean.gzh_AppSecret)
+            strUrl.append("https://api.weixin.qq.com/sns/oauth2/access_token?appid=").append(appId)
+                    .append("&secret=").append(appSecret)
                     .append("&code=").append(code).append("&grant_type=authorization_code");
             return saveData(strUrl,"获取openId标识");
         }catch (Exception e){
@@ -190,7 +202,7 @@ public class WeiXinLoginUtil {
                 throw new Exception("微信登陆工具 --- 刷新access_token --- 参数openId为空值");
             }
             String refresh_token = CacheUtil.get(openId + "_tokenB").toString();
-            strUrl.append("https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=").append(WeiXinJavaBean.gzh_AppID)
+            strUrl.append("https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=").append(appId)
                     .append("&grant_type=refresh_token&refresh_token=").append(refresh_token);
             saveData(strUrl,"刷新access_token");
         }catch (Exception e){
