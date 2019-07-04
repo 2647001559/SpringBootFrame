@@ -7,6 +7,11 @@ import org.springframework.context.annotation.Bean;
 
 import javax.servlet.MultipartConfigElement;
 
+/**
+ * springboot启动类
+ * @author 添柴灬少年
+ *
+ */
 @SpringBootApplication
 public class WataApplication {
 
